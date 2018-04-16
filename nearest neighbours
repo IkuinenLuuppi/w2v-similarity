@@ -1,0 +1,48 @@
+from gensim.models import KeyedVectors
+model=KeyedVectors.load_word2vec_format("word2vec/vec.txt", binary=False, limit=50000)
+
+print("Most similar words for 'funny':")
+print(model.most_similar("funny",topn=10))
+
+print("Similarity of 'bad' and 'horrible':")
+print(model.similarity("bad", "horrible"))
+
+print("Similarity of 'bad' and 'excellent':")
+print(model.similarity("bad", "excellent"))
+
+print("Similarity of 'actor' and 'actress':")
+print(model.similarity("actor", "actress"))
+
+print("Most similar words for 'boring':")
+print(model.most_similar("boring",topn=15))
+
+
+
+
+import numpy
+import os
+import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
+
+numpy.save("vectors_in.npy",model.vectors[:1000,:]) # save vectors for a file
+
+# run tsne locally, input is an embedding matrix, output is an embedding matrix with reduced dimensions
+os.system("python3 bhtsne_wrapper.py --input vectors_in.npy --output vectors_out.npy")
+
+m2d=numpy.load("vectors_out.npy") # read new vectors from a file
+
+# plot
+fig, ax = plt.subplots(figsize=(50, 50), dpi=250)
+plt.scatter(m2d[:1000,0],m2d[:1000,1],marker=",",color="gray")
+words=[(k,w.index) for k,w in model.vocab.items()][:1000] # read words from the embedding model
+words=[w for w,i in sorted(words, key=lambda x:x[1])] # sort based on the index to make sure the order is correct
+print(words[:50])
+
+for i,(v,w) in enumerate(zip(m2d,words)):
+    if i%2!=0:
+        continue
+    txt=plt.text(v[0],v[1],w,size=30,ha="center",va="center",color="black")
+    txt.set_path_effects([path_effects.Stroke(linewidth=1, foreground='black'),
+                   path_effects.Normal()])
+
+plt.show()
