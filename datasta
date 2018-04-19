@@ -1,0 +1,35 @@
+import json
+import random
+with open("data/imdb_train.json") as f:
+    data=json.load(f)
+random.shuffle(data)
+print(data[0])
+
+
+{'class': 'pos', 'text': 'This film was just absolutly brilliant. It actually made me think. During the whole movie I was confused as hell. I loved everything about it...it was just so confusing and so twisted and weird, it was hard not to love it. All of the actors were phenominal, and no one could have done a better job...This is one of my favorites of the year...it deserves an ocar.'}
+
+
+texts=[one_example["text"] for one_example in data]
+labels=[one_example["class"] for one_example in data]
+print(texts[:1])
+print(labels[:1])
+
+
+['This film was just absolutly brilliant. It actually made me think. During the whole movie I was confused as hell. I loved everything about it...it was just so confusing and so twisted and weird, it was hard not to love it. All of the actors were phenominal, and no one could have done a better job...This is one of my favorites of the year...it deserves an ocar.']
+['pos']
+
+
+from sklearn.feature_extraction.text import CountVectorizer
+import numpy
+analyzer=CountVectorizer(lowercase=True).build_analyzer() # includes tokenizer and preprocessing
+with open("imdb_harj.txt", "wt") as f:
+    for text in texts:
+        words=analyzer(text)
+        doc=" ".join(words)
+        print(doc,file=f)
+        
+#sen jälkeen terminaalissa (avaa uusi täbi, cntrl+shift t):  git clone https://github.com/tmikolov/word2vec.git
+#terminaalissa word2vec sisällä: make
+#./word2vec
+#esimerkki: ./word2vec -train ../imdb_harj.txt -output vec.txt -size 200 -window 5 -sample 1e-4 -negative 5 -hs 0 -binary 0 -cbow 1
+#sen jälkeen jupyteriin: w2v similarity kokeilut
